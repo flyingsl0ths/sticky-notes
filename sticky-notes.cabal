@@ -4,7 +4,7 @@ version:            1.0.0.0
 
 synopsis: A random post web app
 
-description: A web app that allows visitors to post random sticky notes up for anyone to see
+description: A web app that allows visitors to post random posts up for anyone to see
 
 homepage: https://github.com/flyingsl0ths/sticky-notes
 bug-reports: https://github.com/flyingsl0ths/sticky-notes/issues
