@@ -1,2 +1,3 @@
 # sticky-notes
-A simple todo app with a vanilla javascript front-end a haskell backend 
+
+A random notes (posts) app with a vanilla javascript front-end a haskell backend
