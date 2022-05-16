@@ -9,8 +9,7 @@ import           Config                         ( ServerConfig(debugMode, port)
 
 import           Routes                         ( routes )
 
-import           Web.Spock                      ( runSpock
-                                                , runSpockNoBanner
+import           Web.Spock                      ( runSpockNoBanner
                                                 , spock
                                                 )
 import           Web.Spock.Config               ( PoolOrConn(PCNoDatabase)
