@@ -2,8 +2,6 @@ module ListUtils
   ( indexOf
   ) where
 
-import           Data.List                      ( foldl' )
-
 indexOf :: (Num p, Eq a) => a -> [a] -> p
 indexOf _ [] = -1
 indexOf item [x] | item == x = 0
