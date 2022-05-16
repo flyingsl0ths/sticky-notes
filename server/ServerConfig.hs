@@ -1,4 +1,4 @@
-module Config
+module ServerConfig
   ( ServerConfig
   , port
   , dbName

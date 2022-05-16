@@ -29,7 +29,7 @@ common test-deps
 executable sticky-notes
     main-is:          Main.hs
 
-    other-modules: Note, Routes, Config, FileUtils, ListUtils
+    other-modules: Note, Routes, ServerConfig, FileUtils, ListUtils
 
     other-extensions: OverloadedStrings
                       EmptyDataDecls
@@ -72,13 +72,13 @@ test-suite listutils
 
   other-modules: ListUtils
 
-test-suite config
+test-suite serverconfig
   import: test-deps
 
   type:               exitcode-stdio-1.0
 
-  main-is:            ConfigSpec.hs
+  main-is:            ServerConfigSpec.hs
 
   hs-source-dirs: test, server, server/utils
 
-  other-modules: Config, FileUtils, ListUtils
+  other-modules: ServerConfig, FileUtils, ListUtils

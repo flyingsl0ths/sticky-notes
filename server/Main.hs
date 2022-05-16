@@ -3,7 +3,7 @@ module Main
   , app
   ) where
 
-import           Config                         ( ServerConfig(debugMode, port)
+import           ServerConfig                   ( ServerConfig(debugMode, port)
                                                 , getServerConfig
                                                 )
 

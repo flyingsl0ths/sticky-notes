@@ -1,4 +1,4 @@
-import           Config                         ( ServerConfig
+import           ServerConfig                   ( ServerConfig
                                                   ( dbName
                                                   , debugMode
                                                   , port
