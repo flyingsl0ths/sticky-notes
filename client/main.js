@@ -11,6 +11,7 @@ async function fetchHomePageData() {
 
 const onDisplayHomePage = (json) => {
   const welcomeTag = document.createElement("h1");
+  welcomeTag.classList = "header";
   welcomeTag.textContent = json.message;
   document.body.append(welcomeTag);
 };

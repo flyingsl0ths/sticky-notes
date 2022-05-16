@@ -17,7 +17,7 @@ extra-source-files:
     CHANGELOG.md
     README.md
     client/index.html
-    client/css/styles.css
+    client/css/style.css
     client/main.js
 
 common test-deps
