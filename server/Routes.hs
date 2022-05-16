@@ -16,6 +16,8 @@ import           Data.Aeson                     ( KeyValue((.=))
 
 import           Data.Text                      ( Text )
 
+import           Network.HTTP.Types             ( ok200 )
+
 import           Web.Spock                      ( SpockM
                                                 , get
                                                 , getContext
@@ -23,6 +25,7 @@ import           Web.Spock                      ( SpockM
                                                 , prehook
                                                 , root
                                                 , setHeader
+                                                , setStatus
                                                 )
 
 type AppDb = ()
@@ -41,8 +44,10 @@ routes debug = do
   withCorsEnabled origin homeRoute
 
 homeRoute :: AppRoute
-homeRoute =
-  get root $ Web.Spock.json $ object ["message" .= String "Hello World"]
+homeRoute = do
+  get root $ do
+    setStatus ok200
+    json $ object ["message" .= String "Hello World"]
 
 withCorsEnabled :: Text -> AppRoute -> AppRoute
 withCorsEnabled origin = prehook $ corsHeader origin
