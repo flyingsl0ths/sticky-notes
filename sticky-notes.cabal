@@ -13,7 +13,6 @@ license: GPL-3.0-only
 license-file: LICENSE
 author:             flyingsl0ths
 maintainer:         randomemail32110@gmail.com
-
 category: Web
 extra-source-files:
     CHANGELOG.md
@@ -22,14 +21,18 @@ extra-source-files:
     client/style/styles.css
     client/main.js
 
+common test-deps
+  build-depends:      base ^>=4.14.3.0,
+                      hspec == 2.9.7
+
+  default-language:   Haskell2010
 
 executable sticky-notes
     main-is:          Main.hs
 
-    other-modules: Note, Routes, Config
+    other-modules: Note, Routes, Config, FileUtils, ListUtils
 
-    other-extensions:
-                      OverloadedStrings
+    other-extensions: OverloadedStrings
                       EmptyDataDecls
                       FlexibleContexts
                       FlexibleInstances
@@ -49,12 +52,34 @@ executable sticky-notes
                       Spock == 0.14.0.0,
                       text == 2.0,
                       aeson == 2.0.3.0,
-                      bytestring >= 0.10,
+                      bytestring == 0.10.12.0,
                       monad-logger == 0.3.36,
-                      mtl >= 2,
+                      mtl == 2.2.2,
                       persistent == 2.14.0.0,
                       persistent-sqlite == 2.13.1.0,
                       persistent-template == 2.12.0.0
 
-    hs-source-dirs:   server
+    hs-source-dirs:   server, server/utils
     default-language: Haskell2010
+
+test-suite listutils
+  import: test-deps
+
+  type:               exitcode-stdio-1.0
+
+  main-is:            ListUtilsSpec.hs
+
+  hs-source-dirs: test, server/utils
+
+  other-modules: ListUtils
+
+test-suite config
+  import: test-deps
+
+  type:               exitcode-stdio-1.0
+
+  main-is:            ConfigSpec.hs
+
+  hs-source-dirs: test, server, server/utils
+
+  other-modules: Config, FileUtils, ListUtils

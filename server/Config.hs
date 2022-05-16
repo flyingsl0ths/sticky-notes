@@ -6,11 +6,14 @@ module Config
   , getServerConfig
   ) where
 
+import           FileUtils                      ( containsFileExtension )
+
 import qualified Data.Maybe                    as DM
                                                 ( fromMaybe )
 
 import           System.Environment             ( lookupEnv )
 
+import           Data.List                      ( foldl' )
 import           Text.Read                      ( readMaybe )
 
 defaultPortNo :: Int
@@ -23,10 +26,10 @@ defaultDebugMode :: Int
 defaultDebugMode = 1
 
 portEnvVar :: String
-portEnvVar = "PORT"
+portEnvVar = "ST_SVR_PORT"
 
 dbNameEnvVar :: String
-dbNameEnvVar = "DB"
+dbNameEnvVar = "ST_DB"
 
 debugModeEnvVar :: String
 debugModeEnvVar = "ST_SVR_DEBUG"
@@ -55,4 +58,7 @@ getEnvVarAsNumber envVar defaultValue = do
 getDBName :: IO String
 getDBName = do
   value <- lookupEnv dbNameEnvVar
-  return $ DM.fromMaybe defaultDBName value
+  return $ maybe defaultDBName validDBFileOrDefault value
+ where
+  validDBFileOrDefault file | containsFileExtension file "db" = file
+                            | otherwise                       = defaultDBName
