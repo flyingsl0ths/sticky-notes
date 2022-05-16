@@ -1,6 +1,5 @@
 import           ListUtils                      ( indexOf )
 
-import           System.Exit                    ( exitSuccess )
 import           Test.Hspec                     ( Spec
                                                 , describe
                                                 , hspec
