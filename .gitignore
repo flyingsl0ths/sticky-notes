@@ -1,3 +1,5 @@
+project-*.md
+*.excalidraw
 dist
 dist-*
 cabal-dev
