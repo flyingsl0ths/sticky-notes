@@ -29,7 +29,7 @@ common test-deps
 executable sticky-notes
     main-is:          Main.hs
 
-    other-modules: Note, Routes, ServerConfig, FileUtils, ListUtils
+    other-modules: Note, Routes, ServerConfig, FileUtils, ListUtils, LogUtils
 
     other-extensions: OverloadedStrings
                       EmptyDataDecls
@@ -44,7 +44,10 @@ executable sticky-notes
                       DerivingStrategies
                       StandaloneDeriving
                       UndecidableInstances
-                      DataKinds
+                      DerivingStrategies  
+                      UndecidableInstances
+                      StandaloneDeriving  
+                      DataKinds           
 
     build-depends:    base ^>=4.14.3.0,
                       http-types == 0.12.3,
@@ -56,7 +59,7 @@ executable sticky-notes
                       mtl == 2.2.2,
                       persistent == 2.14.0.0,
                       persistent-sqlite == 2.13.1.0,
-                      persistent-template == 2.12.0.0
+                      persistent-template == 2.12.0.0,
 
     hs-source-dirs:   server, server/utils
     default-language: Haskell2010
@@ -82,3 +85,21 @@ test-suite serverconfig
   hs-source-dirs: test, server, server/utils
 
   other-modules: ServerConfig, FileUtils, ListUtils
+
+test-suite logutils
+  build-depends:      base ^>=4.14.3.0,
+                      hspec == 2.9.7,
+                      mtl == 2.2.2,
+                      text == 2.0,
+                      monad-logger == 0.3.36,
+                      directory == 1.3.6.0
+
+  default-language: Haskell2010
+
+  type:               exitcode-stdio-1.0
+
+  main-is:            LogUtilsSpec.hs
+
+  hs-source-dirs: test, server/utils
+
+  other-modules: LogUtils
