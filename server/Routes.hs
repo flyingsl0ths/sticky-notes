@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE GADTs #-}
 
 module Routes
   ( routes
@@ -7,18 +8,28 @@ module Routes
   , AppSession
   , AppState
   , AppRoute
+  , ServerContext(..)
   ) where
 
 import           Data.Aeson                     ( KeyValue((.=))
                                                 , Value(String)
+                                                , defaultOptions
                                                 , object
                                                 )
 
-import           Data.Text                      ( Text )
+import           Data.Text                      ( Text
+                                                , pack
+                                                )
 
 import           Network.HTTP.Types             ( ok200 )
 
-import           Web.Spock                      ( SpockM
+import           Database.Persist.Sql           ( SqlBackend
+                                                , SqlPersistT
+                                                , runSqlConn
+                                                )
+
+import           Web.Spock                      ( HasSpock(SpockConn, runQuery)
+                                                , SpockM
                                                 , get
                                                 , getContext
                                                 , json
@@ -28,23 +39,41 @@ import           Web.Spock                      ( SpockM
                                                 , setStatus
                                                 )
 
-type AppDb = ()
+import           Control.Monad.Logger           ( LoggingT
+                                                , runFileLoggingT
+                                                , runStdoutLoggingT
+                                                )
+
+data ServerContext = ServerContextC
+  { domain    :: Maybe String
+  , debugMode :: Bool
+  , logFile   :: String
+  }
+  deriving Show
+
+runSQL
+  :: (HasSpock m, SpockConn m ~ SqlBackend)
+  => FilePath
+  -> LoggingT IO a
+  -> SqlPersistT (LoggingT IO) a
+  -> m a
+runSQL logFile logger action =
+  runQuery $ \conn -> runFileLoggingT logFile (logger >> runSqlConn action conn)
+
+type AppDb = SqlBackend
 type AppSession = ()
 type AppState = ()
 type App = SpockM AppDb AppSession AppState ()
 type AppRoute = App
 
--- ! Change once deployed
-domain :: Text
-domain = "..."
+routes :: ServerContext -> App
+routes ctx = do
+  let origin = if debugMode ctx then "*" else maybe "" pack (domain ctx)
 
-routes :: Bool -> App
-routes debug = do
-  let origin = if debug then "*" else domain
-  withCorsEnabled origin homeRoute
+  withCorsEnabled origin $ homeRoute ctx
 
-homeRoute :: AppRoute
-homeRoute = do
+homeRoute :: ServerContext -> AppRoute
+homeRoute ctx = do
   get root $ do
     setStatus ok200
     json $ object ["message" .= String "Hello World"]
