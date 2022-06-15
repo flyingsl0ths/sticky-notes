@@ -3,6 +3,9 @@ module ServerConfig
   , port
   , dbName
   , debugMode
+  , dbPoolSize
+  , logFile
+  , domainName
   , getServerConfig
   ) where
 
@@ -13,41 +16,36 @@ import qualified Data.Maybe                    as DM
 
 import           System.Environment             ( lookupEnv )
 
-import           Data.List                      ( foldl' )
 import           Text.Read                      ( readMaybe )
-
-defaultPortNo :: Int
-defaultPortNo = 8080
 
 defaultDBName :: String
 defaultDBName = "notes.db"
 
-defaultDebugMode :: Int
-defaultDebugMode = 1
-
-portEnvVar :: String
-portEnvVar = "ST_SVR_PORT"
-
-dbNameEnvVar :: String
-dbNameEnvVar = "ST_DB"
-
-debugModeEnvVar :: String
-debugModeEnvVar = "ST_SVR_DEBUG"
-
 data ServerConfig = ServerConfig
-  { port      :: Int
-  , dbName    :: String
-  , debugMode :: Bool
+  { port       :: Int
+  , dbName     :: String
+  , debugMode  :: Bool
+  , dbPoolSize :: Int
+  , logFile    :: String
+  , domainName :: Maybe String
   }
   deriving Show
 
 getServerConfig :: IO ServerConfig
 getServerConfig = do
-  port'   <- getEnvVarAsNumber portEnvVar defaultPortNo
-  debug   <- getEnvVarAsNumber debugModeEnvVar defaultDebugMode
-  dbName' <- getDBName
-  return
-    $ ServerConfig { port = port', dbName = dbName', debugMode = debug == 1 }
+  port'       <- getEnvVarAsNumber "ST_SVR_PORT" 8080
+  debug       <- getEnvVarAsNumber "ST_SVR_DEBUG" 1
+  dbName'     <- getDBName
+  dbPoolSize' <- getEnvVarAsNumber "ST_SVR_POOL_SIZE" 5
+  logFile'    <- getEnvVarOrDefault "ST_SVR_LOG" "server.log"
+  domainName' <- lookupEnv "ST_DOMAIN_NAME"
+  return $ ServerConfig { port       = port'
+                        , dbName     = dbName'
+                        , debugMode  = debug == 1
+                        , dbPoolSize = dbPoolSize'
+                        , logFile    = logFile'
+                        , domainName = domainName'
+                        }
 
 getEnvVarAsNumber :: String -> Int -> IO Int
 getEnvVarAsNumber envVar defaultValue = do
@@ -57,8 +55,13 @@ getEnvVarAsNumber envVar defaultValue = do
 
 getDBName :: IO String
 getDBName = do
-  value <- lookupEnv dbNameEnvVar
+  value <- lookupEnv "ST_DB"
   return $ maybe defaultDBName validDBFileOrDefault value
  where
   validDBFileOrDefault file | containsFileExtension file "db" = file
                             | otherwise                       = defaultDBName
+
+getEnvVarOrDefault :: String -> String -> IO String
+getEnvVarOrDefault envVar defaultValue = do
+  value <- lookupEnv envVar
+  return $ DM.fromMaybe defaultValue value

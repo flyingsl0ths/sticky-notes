@@ -1,9 +1,8 @@
 import           ServerConfig                   ( ServerConfig
-                                                  ( dbName
-                                                  , debugMode
-                                                  , port
-                                                  )
+                                                , dbName
+                                                , debugMode
                                                 , getServerConfig
+                                                , port
                                                 )
 
 import           System.Environment             ( setEnv )
