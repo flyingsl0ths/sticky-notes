@@ -60,6 +60,7 @@ executable sticky-notes
                       persistent == 2.14.0.0,
                       persistent-sqlite == 2.13.1.0,
                       persistent-template == 2.12.0.0,
+                      time == 1.9.3
 
     hs-source-dirs:   server, server/utils
     default-language: Haskell2010

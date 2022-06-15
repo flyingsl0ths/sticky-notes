@@ -3,6 +3,8 @@ module LogUtils
   , RequestType(..)
   , RequestRecord(..)
   , makeRequestLogger
+  , utcDate
+  , fromUnixTime
   ) where
 
 import           Control.Monad                  ( unless )
@@ -15,6 +17,22 @@ import           Control.Monad.Logger           ( LogLevel(LevelOther)
 import           Data.Text                      ( Text
                                                 , pack
                                                 )
+
+import           Data.Time.Clock.POSIX          ( POSIXTime
+                                                , posixSecondsToUTCTime
+                                                )
+
+import           Data.Functor                   ( (<&>) )
+
+import           Data.Time.Clock                ( getCurrentTime )
+
+import           Data.Time.Format.ISO8601       ( iso8601Show )
+
+fromUnixTime :: POSIXTime -> String
+fromUnixTime = iso8601Show . posixSecondsToUTCTime
+
+utcDate :: IO String
+utcDate = getCurrentTime <&> show
 
 type Logger m = (Text -> m ())
 
@@ -38,7 +56,6 @@ data RequestRecord = RequestRecordC
   , time        :: String
   }
   deriving Show
-
 
 makeRequestLogger :: MonadLogger m => RequestRecord -> Logger m -> m ()
 makeRequestLogger ctx logger | containsRequiredFields = withLogger logger
