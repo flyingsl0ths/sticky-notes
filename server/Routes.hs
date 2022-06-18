@@ -21,17 +21,26 @@ import           Data.Text                      ( Text
                                                 , pack
                                                 )
 
-import           Network.HTTP.Types             ( ok200 )
+import           Network.HTTP.Types             ( badRequest400
+                                                , ok200
+                                                )
 
 import           Database.Persist.Sql           ( SqlBackend
                                                 , SqlPersistT
                                                 , runSqlConn
                                                 )
 
-import           Web.Spock                      ( HasSpock(SpockConn, runQuery)
+import           Control.Monad.Logger           ( LoggingT
+                                                , runStdoutLoggingT
+                                                )
+
+import           Web.Spock                      ( ActionCtxT
+                                                , HasSpock(SpockConn, runQuery)
                                                 , SpockM
+                                                , WebStateM
                                                 , get
                                                 , getContext
+                                                , header
                                                 , json
                                                 , prehook
                                                 , root
@@ -39,32 +48,26 @@ import           Web.Spock                      ( HasSpock(SpockConn, runQuery)
                                                 , setStatus
                                                 )
 
-import           Control.Monad.Logger           ( LoggingT
-                                                , runFileLoggingT
-                                                , runStdoutLoggingT
-                                                )
+type AppDb = SqlBackend
+type AppSession = ()
+type AppState = ()
+type App = SpockM AppDb AppSession AppState ()
+type AppAction a = ActionCtxT () (WebStateM AppDb AppSession AppState) a
+type AppRoute = App
 
-data ServerContext = ServerContextC
+data ServerContext = ServerContext
   { domain    :: Maybe String
   , debugMode :: Bool
-  , logFile   :: String
   }
   deriving Show
 
 runSQL
   :: (HasSpock m, SpockConn m ~ SqlBackend)
-  => FilePath
-  -> LoggingT IO a
-  -> SqlPersistT (LoggingT IO) a
+  => SqlPersistT (LoggingT IO) a
   -> m a
-runSQL logFile logger action =
-  runQuery $ \conn -> runFileLoggingT logFile (logger >> runSqlConn action conn)
+runSQL action = runQuery $ \conn -> runStdoutLoggingT $ runSqlConn action conn
 
-type AppDb = SqlBackend
-type AppSession = ()
-type AppState = ()
-type App = SpockM AppDb AppSession AppState ()
-type AppRoute = App
+adminPasswordHash = "" :: Text
 
 routes :: ServerContext -> App
 routes ctx = do
@@ -78,6 +81,11 @@ homeRoute ctx = do
     setStatus ok200
     json $ object ["message" .= String "Hello World"]
 
+badRequest :: AppAction a
+badRequest = do
+  setStatus badRequest400
+  json $ object []
+
 withCorsEnabled :: Text -> AppRoute -> AppRoute
 withCorsEnabled origin = prehook $ corsHeader origin
 
@@ -85,3 +93,4 @@ corsHeader origin = do
   ctx <- getContext
   setHeader "Access-Control-Allow-Origin" origin
   return ctx
+

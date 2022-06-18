@@ -4,7 +4,6 @@ module ServerConfig
   , dbName
   , debugMode
   , dbPoolSize
-  , logFile
   , domainName
   , getServerConfig
   ) where
@@ -26,7 +25,6 @@ data ServerConfig = ServerConfig
   , dbName     :: String
   , debugMode  :: Bool
   , dbPoolSize :: Int
-  , logFile    :: String
   , domainName :: Maybe String
   }
   deriving Show
@@ -37,13 +35,11 @@ getServerConfig = do
   debug       <- getEnvVarAsNumber "ST_SVR_DEBUG" 1
   dbName'     <- getDBName
   dbPoolSize' <- getEnvVarAsNumber "ST_SVR_POOL_SIZE" 5
-  logFile'    <- getEnvVarOrDefault "ST_SVR_LOG" "server.log"
   domainName' <- lookupEnv "ST_DOMAIN_NAME"
   return $ ServerConfig { port       = port'
                         , dbName     = dbName'
                         , debugMode  = debug == 1
                         , dbPoolSize = dbPoolSize'
-                        , logFile    = logFile'
                         , domainName = domainName'
                         }
 
@@ -61,7 +57,3 @@ getDBName = do
   validDBFileOrDefault file | containsFileExtension file "db" = file
                             | otherwise                       = defaultDBName
 
-getEnvVarOrDefault :: String -> String -> IO String
-getEnvVarOrDefault envVar defaultValue = do
-  value <- lookupEnv envVar
-  return $ DM.fromMaybe defaultValue value

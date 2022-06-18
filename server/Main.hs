@@ -5,14 +5,13 @@ import           ServerConfig                   ( ServerConfig
                                                   , dbPoolSize
                                                   , debugMode
                                                   , domainName
-                                                  , logFile
                                                   , port
                                                   )
                                                 , getServerConfig
                                                 )
 
 import           Routes                         ( ServerContext
-                                                  ( ServerContextC
+                                                  ( ServerContext
                                                   , domain
                                                   )
                                                 , routes
@@ -26,10 +25,7 @@ import           Web.Spock.Config               ( PoolOrConn(PCPool)
                                                 , defaultSpockCfg
                                                 )
 
-import           Control.Monad.Logger           ( logInfoN
-                                                , runFileLoggingT
-                                                , runNoLoggingT
-                                                )
+import           Control.Monad.Logger           ( runNoLoggingT )
 
 import           Database.Persist.Sqlite        ( createSqlitePool
                                                 , runMigration
@@ -50,32 +46,19 @@ main = do
 setup = do
   serverConfig <- getServerConfig
 
-  let logFile' = logFile serverConfig
+  pool         <- do
+    runNoLoggingT $ createSqlitePool (pack $ dbName serverConfig)
+                                     (dbPoolSize serverConfig)
 
-  pool <- runFileLoggingT
-    logFile'
+  runSqlPool
     (do
-      logInfoN (pack $ show serverConfig)
-
-      pool <- do
-        logInfoN (pack "Initializing database")
-        createSqlitePool (pack $ dbName serverConfig) (dbPoolSize serverConfig)
-
-      logInfoN $ pack "Running migrations"
-      runSqlPool
-        (do
-          runMigration migrateAll
-        )
-        pool
-
-      return pool
+      runMigration migrateAll
     )
+    pool
 
   spockCfg <- defaultSpockCfg () (PCPool pool) ()
 
-  let ctx = ServerContextC (domainName serverConfig)
-                           (debugMode serverConfig)
-                           logFile'
+  let ctx = ServerContext (domainName serverConfig) (debugMode serverConfig)
 
   return (serverConfig, spock spockCfg $ routes ctx)
 
