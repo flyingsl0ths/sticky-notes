@@ -33,3 +33,4 @@ Note json
   date Text
   deriving Show
 |]
+

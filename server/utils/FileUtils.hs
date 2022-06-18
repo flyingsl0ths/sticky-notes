@@ -16,3 +16,4 @@ containsFileExtension fileName extension =
     = let theDot'         = theDot + 1
           (_, extension') = splitAt theDot' fileName
       in  extension == extension'
+
