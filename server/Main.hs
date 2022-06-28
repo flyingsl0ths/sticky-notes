@@ -1,7 +1,21 @@
 module Main where
 
+import           Control.Monad.Logger           ( runNoLoggingT )
+import           Data.Text                      ( pack )
+import           Database.Persist.Sqlite        ( createSqlitePool
+                                                , runMigration
+                                                , runSqlPool
+                                                )
+import           Note                           ( migrateAll )
+import           Routes                         ( ServerContext
+                                                  ( ServerContext
+                                                  , domain
+                                                  )
+                                                , routes
+                                                )
 import           ServerConfig                   ( ServerConfig
-                                                  ( dbName
+                                                  ( adminPsswdHash
+                                                  , dbName
                                                   , dbPoolSize
                                                   , debugMode
                                                   , domainName
@@ -9,46 +23,25 @@ import           ServerConfig                   ( ServerConfig
                                                   )
                                                 , getServerConfig
                                                 )
-
-import           Routes                         ( ServerContext
-                                                  ( ServerContext
-                                                  , domain
-                                                  )
-                                                , routes
-                                                )
-
 import           Web.Spock                      ( runSpockNoBanner
                                                 , spock
                                                 )
-
 import           Web.Spock.Config               ( PoolOrConn(PCPool)
                                                 , defaultSpockCfg
                                                 )
 
-import           Control.Monad.Logger           ( runNoLoggingT )
-
-import           Database.Persist.Sqlite        ( createSqlitePool
-                                                , runMigration
-                                                , runSqlPool
-                                                )
-
-import           Data.Text                      ( pack )
-
-import           Note                           ( migrateAll )
-
 
 main :: IO ()
 main = do
-  (serverConfig, app') <- setup
+  (portNumber, app') <- setup
 
-  runSpockNoBanner (port serverConfig) app'
+  runSpockNoBanner portNumber app'
 
 setup = do
   serverConfig <- getServerConfig
 
-  pool         <- do
-    runNoLoggingT $ createSqlitePool (pack $ dbName serverConfig)
-                                     (dbPoolSize serverConfig)
+  pool         <- runNoLoggingT
+    $ createSqlitePool (pack $ dbName serverConfig) (dbPoolSize serverConfig)
 
   runSqlPool
     (do
@@ -58,7 +51,9 @@ setup = do
 
   spockCfg <- defaultSpockCfg () (PCPool pool) ()
 
-  let ctx = ServerContext (domainName serverConfig) (debugMode serverConfig)
+  let serverCtx = ServerContext (domainName serverConfig)
+                                (debugMode serverConfig)
+                                (pack $ adminPsswdHash serverConfig)
 
-  return (serverConfig, spock spockCfg $ routes ctx)
+  return (port serverConfig, spock spockCfg $ routes serverCtx)
 

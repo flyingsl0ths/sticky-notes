@@ -5,42 +5,43 @@ module ServerConfig
   , debugMode
   , dbPoolSize
   , domainName
+  , adminPsswdHash
   , getServerConfig
   ) where
 
-import           FileUtils                      ( containsFileExtension )
-
 import qualified Data.Maybe                    as DM
                                                 ( fromMaybe )
-
+import           FileUtils                      ( containsFileExtension )
 import           System.Environment             ( lookupEnv )
-
 import           Text.Read                      ( readMaybe )
 
 defaultDBName :: String
 defaultDBName = "notes.db"
 
 data ServerConfig = ServerConfig
-  { port       :: Int
-  , dbName     :: String
-  , debugMode  :: Bool
-  , dbPoolSize :: Int
-  , domainName :: Maybe String
+  { port           :: Int
+  , dbName         :: String
+  , debugMode      :: Bool
+  , dbPoolSize     :: Int
+  , domainName     :: Maybe String
+  , adminPsswdHash :: String
   }
   deriving Show
 
 getServerConfig :: IO ServerConfig
 getServerConfig = do
-  port'       <- getEnvVarAsNumber "ST_SVR_PORT" 8080
-  debug       <- getEnvVarAsNumber "ST_SVR_DEBUG" 1
-  dbName'     <- getDBName
-  dbPoolSize' <- getEnvVarAsNumber "ST_SVR_POOL_SIZE" 5
-  domainName' <- lookupEnv "ST_DOMAIN_NAME"
-  return $ ServerConfig { port       = port'
-                        , dbName     = dbName'
-                        , debugMode  = debug == 1
-                        , dbPoolSize = dbPoolSize'
-                        , domainName = domainName'
+  port'             <- getEnvVarAsNumber "ST_SVR_PORT" 8080
+  debug             <- getEnvVarAsNumber "ST_SVR_DEBUG" 1
+  dbName'           <- getDBName
+  dbPoolSize'       <- getEnvVarAsNumber "ST_SVR_POOL_SIZE" 5
+  domainName'       <- lookupEnv "ST_DOMAIN_NAME"
+  adminPasswordHash <- lookupEnv "ST_ADMIN_PASSWORD_HASH"
+  return $ ServerConfig { port           = port'
+                        , dbName         = dbName'
+                        , debugMode      = debug == 1
+                        , dbPoolSize     = dbPoolSize'
+                        , domainName     = domainName'
+                        , adminPsswdHash = DM.fromMaybe "" adminPasswordHash
                         }
 
 getEnvVarAsNumber :: String -> Int -> IO Int
