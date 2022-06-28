@@ -1,3 +1,7 @@
+{-# LANGUAGE DerivingStrategies         #-}
+{-# LANGUAGE UndecidableInstances       #-}
+{-# LANGUAGE StandaloneDeriving         #-}
+{-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE EmptyDataDecls             #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
@@ -7,16 +11,10 @@
 {-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
-{-# LANGUAGE DerivingStrategies         #-}
-{-# LANGUAGE UndecidableInstances       #-}
-{-# LANGUAGE StandaloneDeriving         #-}
-{-# LANGUAGE DataKinds                  #-}
 
-module Note
-  ( Note(..)
-  , migrateAll
-  ) where
+module Note where
 
+import           Data.Text                      ( Text )
 import           Database.Persist.TH            ( mkMigrate
                                                 , mkPersist
                                                 , persistLowerCase
@@ -24,13 +22,12 @@ import           Database.Persist.TH            ( mkMigrate
                                                 , sqlSettings
                                                 )
 
-import           Data.Text                      ( Text )
-
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Note json
+  title Text
   text Text
   author Text
-  date Text
+  date Int
   deriving Show
 |]
 
