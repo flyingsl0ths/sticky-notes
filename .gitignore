@@ -24,4 +24,7 @@ cabal.project.local~
 .HTF/
 .ghc.environment.*
 
-debug.*
+# Used to any files required when developing project
+*debug*
+
+hash.py
