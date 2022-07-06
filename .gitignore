@@ -1,4 +1,4 @@
-project-*.md
+project/
 *.excalidraw
 dist
 dist-*
@@ -26,5 +26,5 @@ cabal.project.local~
 
 # Used to any files required when developing project
 *debug*
-
+.vscode
 hash.py
