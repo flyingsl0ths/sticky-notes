@@ -10,4 +10,3 @@ indexOf item xs = fst $ until foundItem increment (0, xs)
  where
   foundItem (_, xs') = null xs' || (head xs' == item)
   increment (acc, xs') = (acc + 1, drop 1 xs')
-
