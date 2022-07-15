@@ -1,0 +1,36 @@
+@use "theme";
+
+.fab {
+    align-items: center;
+    background-color: theme.$secondaryColor;
+    border-radius: 360px;
+    box-shadow: 0px 4px 5px 1px rgba(0, 0, 0, 0.25);
+    color: theme.$primaryLightColor;
+    display: flex;
+    height: 60px;
+    justify-content: center;
+    text-align: center;
+    width: 60px;
+}
+
+.fab-icon {
+    height: 40px;
+    width: 40px;
+}
+
+.fab-sm-icon {
+    height: 35px;
+    width: 35px;
+}
+
+.fab-label-bg {
+    background-color: theme.$secondaryColor;
+    border-radius: 5px;
+    box-shadow: 0px 4px 4px 1px rgba(0, 0, 0, 0.25);
+    color: white;
+    font-size: 1.5vw;
+    max-width: 10vw;
+    padding: 0.25em;
+    text-align: center;
+    width: 10vw;
+}
