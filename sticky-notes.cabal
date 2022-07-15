@@ -1,95 +1,111 @@
 cabal-version:      2.4
 name:               sticky-notes
 version:            1.0.0.0
+synopsis:           A random post web app
+description:
+  A web app that allows visitors to post random posts up for anyone to see
 
-synopsis: A random post web app
-
-description: A web app that allows visitors to post random posts up for anyone to see
-
-homepage: https://github.com/flyingsl0ths/sticky-notes
-bug-reports: https://github.com/flyingsl0ths/sticky-notes/issues
-
-license: GPL-3.0-only
-license-file: LICENSE
+homepage:           https://github.com/flyingsl0ths/sticky-notes
+bug-reports:        https://github.com/flyingsl0ths/sticky-notes/issues
+license:            GPL-3.0-only
+license-file:       LICENSE
 author:             flyingsl0ths
-category: Web
+category:           Web
 extra-source-files:
-    README.md
-    client/index.html
-    client/css/style.css
-    client/main.js
-    .editorconfig
-    .gitignore
-    .ghci
-    hash.py
+  .editorconfig
+  .envrc
+  .ghci
+  .gitignore
+  client/.gitignore
+  client/assets/*.svg
+  client/css/*.css
+  client/index.html
+  client/main.js
+  client/scss/*.scss
+  README.md
+  run.sh
+  shell.nix
 
 executable sticky-notes
-    main-is:          Main.hs
+  main-is:          Main.hs
+  other-modules:
+    ListUtils
+    Note
+    Routes
+    ServerConfig
+    StringUtils
 
-    other-modules: Note, Routes, ServerConfig, StringUtils, ListUtils
+  other-extensions:
+    DataKinds
+    DerivingStrategies
+    DerivingStrategies
+    EmptyDataDecls
+    FlexibleContexts
+    FlexibleInstances
+    GADTs
+    GeneralizedNewtypeDeriving
+    MultiParamTypeClasses
+    OverloadedStrings
+    QuasiQuotes
+    StandaloneDeriving
+    StandaloneDeriving
+    TemplateHaskell
+    TypeFamilies
+    UndecidableInstances
+    UndecidableInstances
 
-    other-extensions: OverloadedStrings
-                      EmptyDataDecls
-                      FlexibleContexts
-                      FlexibleInstances
-                      GADTs
-                      GeneralizedNewtypeDeriving
-                      MultiParamTypeClasses
-                      QuasiQuotes
-                      TemplateHaskell
-                      TypeFamilies
-                      DerivingStrategies
-                      StandaloneDeriving
-                      UndecidableInstances
-                      DerivingStrategies  
-                      UndecidableInstances
-                      StandaloneDeriving  
-                      DataKinds           
-
-    build-depends:    base ^>=4.14.3.0,
-                      http-types == 0.12.3,
-                      Spock == 0.14.0.0,
-                      aeson == 2.0.3.0,
-                      bytestring == 0.10.12.0,
-                      monad-logger == 0.3.36,
-                      mtl == 2.2.2,
-                      persistent == 2.14.0.0,
-                      persistent-sqlite == 2.13.1.0,
-                      persistent-template == 2.12.0.0,
-                      text == 2.0,
-                      pcre2 == 2.2.1
-
-    default-language: Haskell2010
-
-    hs-source-dirs:   server, server/utils
-
-test-suite listutils
-  build-depends:      base ^>=4.14.3.0,
-                      hspec == 2.9.7
-
-  default-language:   Haskell2010
-
-  type:               exitcode-stdio-1.0
-
-  main-is:            ListUtilsSpec.hs
-
-  hs-source-dirs: test, server/utils
-
-  other-modules: ListUtils
-
-test-suite serverconfig
-  build-depends:      base ^>=4.14.3.0,
-                      hspec == 2.9.7,
-                      text == 2.0,
-                      pcre2 == 2.2.1
+  build-depends:
+    , aeson                ==2.0.3.0
+    , base                 ^>=4.14.3.0
+    , bytestring           ==0.10.12.0
+    , http-types           ==0.12.3
+    , monad-logger         ==0.3.36
+    , mtl                  ==2.2.2
+    , pcre2                ==2.2.1
+    , persistent           ==2.14.0.0
+    , persistent-sqlite    ==2.13.1.0
+    , persistent-template  ==2.12.0.0
+    , Spock                ==0.14.0.0
+    , text                 ==2.0
 
   default-language: Haskell2010
+  hs-source-dirs:   server server/utils
 
-  type:               exitcode-stdio-1.0
+executable hash
+  main-is:          Hash.hs
+  scope:            private
+  build-depends:
+    , base         ^>=4.14.3.0
+    , bytestring   ==0.10.12.0
+    , cryptonite   ==0.30
+    , utf8-string  ==1.0.2
 
-  main-is:            ServerConfigSpec.hs
+  default-language: Haskell2010
+  hs-source-dirs:   server
 
-  hs-source-dirs: test, server, server/utils
+test-suite listutils
+  build-depends:
+    , base   ^>=4.14.3.0
+    , hspec  ==2.9.7
 
-  other-modules: ServerConfig, StringUtils, ListUtils
+  default-language: Haskell2010
+  type:             exitcode-stdio-1.0
+  main-is:          ListUtilsSpec.hs
+  hs-source-dirs:   test server/utils
+  other-modules:    ListUtils
 
+test-suite serverconfig
+  build-depends:
+    , base   ^>=4.14.3.0
+    , hspec  ==2.9.7
+    , pcre2  ==2.2.1
+    , text   ==2.0
+
+  default-language: Haskell2010
+  type:             exitcode-stdio-1.0
+  main-is:          ServerConfigSpec.hs
+  hs-source-dirs:   test server server/utils
+  other-modules:
+    ListUtils
+    ServerConfig
+    StringUtils
