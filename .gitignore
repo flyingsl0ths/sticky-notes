@@ -1,5 +1,3 @@
-project/
-*.excalidraw
 dist
 dist-*
 cabal-dev
@@ -24,7 +22,5 @@ cabal.project.local~
 .HTF/
 .ghc.environment.*
 
-# Used to any files required when developing project
 *debug*
 .vscode
-hash.py
