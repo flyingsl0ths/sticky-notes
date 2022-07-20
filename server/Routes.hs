@@ -75,17 +75,20 @@ import StringUtils (
     containsUrl,
  )
 
+import Network.Wai.Middleware.Static (addBase, staticPolicy)
 import Web.Spock (
     ActionCtxT,
     HasSpock (SpockConn, runQuery),
     SpockM,
     WebStateM,
     delete,
+    file,
     get,
     getContext,
     header,
     json,
     jsonBody',
+    middleware,
     post,
     prehook,
     root,
@@ -128,12 +131,20 @@ routes ctx = do
         allNotes
         addNote
         deleteAllNotes $ adminPasswordHash ctx
+        helloRoute
+
+helloRoute :: AppRoute
+helloRoute = do
+    get "hello" $ do
+        setStatus ok200
+        json $ object ["message" .= String "Hello World!"]
 
 homeRoute :: AppRoute
 homeRoute = do
+    middleware $ staticPolicy $ addBase "client"
     get root $ do
         setStatus ok200
-        json $ object ["message" .= String "Hello World"]
+        file "text/html" "index.html"
 
 allNotes :: AppRoute
 allNotes = get "notes" $ do
