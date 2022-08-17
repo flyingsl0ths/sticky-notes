@@ -30,7 +30,7 @@ data ServerConfig = ServerConfig
 
 getServerConfig :: IO ServerConfig
 getServerConfig = do
-  port'             <- getEnvVarAsNumber "ST_SVR_PORT" 8080
+  port'             <- getEnvVarAsNumber "ST_SVR_PORT" 5000
   debug             <- getEnvVarAsNumber "ST_SVR_DEBUG" 1
   dbName'           <- getDBName
   dbPoolSize'       <- getEnvVarAsNumber "ST_SVR_POOL_SIZE" 5
