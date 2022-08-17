@@ -5,28 +5,39 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link href="css/style.css" rel="stylesheet" />
-        <title>Sticky Notes</title>
+        <title>Sticky Notes &#x1F4DD;</title>
     </head>
 
     <body>
-        <div class="fab-container">
-            <div id="fab-options" class="vbox">
+        <div id="header" class="chbox tac">
+            <h1>Sticky Notes</h1>
+            <h2>&#x1F4DD;</h2>
+        </div>
+
+        <div id="fab-container">
+            <div id="fab-options" class="vbox" data-toggled="1">
                 <div class="hbox">
                     <h4 class="fab-label">Check us out!</h4>
-                    <div class="fab">
+                    <div class="fab" data-action="github">
                         <img src="assets/github.svg" alt="Github icon" />
                     </div>
                 </div>
+
                 <div class="fab-spacer"></div>
+
                 <div class="hbox">
                     <h4 class="fab-label">Create a post</h4>
-                    <div class="fab">
+                    <div id="modal-btn" class="fab" data-action="post">
                         <img src="assets/post.svg" alt="Create post icon" />
                     </div>
                 </div>
             </div>
+
             <div id="main-fab" class="fab"><h1>+</h1></div>
         </div>
-        <script src="components/dist/index.js"></script>
+
+        <div id="notes"></div>
+
+        <script src="js/dist/index.js" type="module"></script>
     </body>
 </html>

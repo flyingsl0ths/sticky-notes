@@ -2,8 +2,10 @@
     "extends": "@tsconfig/node16-strictest-esm/tsconfig.json",
     "compilerOptions": {
         "outDir": "dist",
-        "lib": ["DOM", "es2021"]
+        "lib": ["DOM", "es2016"]
     },
-    "include": ["*.ts", "test/*.ts"],
+    "module": "es2016",
+    "target": "es2016",
+    "include": ["*.ts", "utils/*.ts"],
     "importsNotUsedAsValues": "remove"
 }
