@@ -2,15 +2,18 @@
     "name": "client",
     "version": "1.0.0",
     "private": true,
+    "type": "module",
     "description": "A random posts website (client)",
     "author": "flyingsl0ths",
     "license": "GPL-3.0-or-later",
     "scripts": {
-        "lint": "tsc --noEmit -p components/tsconfig.json && eslint \"components/**/*.ts\" --quiet --fix",
-        "build": "npm run build-sass && npm run build-ts",
-        "compile-sass": "npx sass -w scss/style.scss css/style.css",
-        "build-sass": "npx sass scss/style.scss css/style.css",
-        "build-ts": "npx tsc -p components/tsconfig.json"
+        "build": "npm run format && npm run lint && npm run bcss && npm run bts",
+        "lint": "npx tsc --noEmit -p js/tsconfig.json && npx eslint \"js/**/*.ts\" --quiet --fix",
+        "format": "prettier -w js/**/**/*.ts",
+        "cts": "npx tsc -w -p js/tsconfig.json",
+        "ccss": "npx sass -w scss/style.scss css/style.css",
+        "bcss": "npx sass scss/style.scss css/style.css",
+        "bts": "npx tsc -p js/tsconfig.json"
     },
     "dependencies": {
         "@tsconfig/node16-strictest-esm": "^1.0.3",
@@ -19,16 +22,10 @@
         "typescript": "^4.7.4"
     },
     "devDependencies": {
+        "@types/mocha": "^9.1.1",
+        "@types/node": "^18.0.6",
         "@typescript-eslint/eslint-plugin": "^5.30.7",
         "@typescript-eslint/parser": "^5.30.7",
-        "eslint": "^8.20.0",
-        "mocha": "^10.0.0"
-    },
-    "mocha": {
-        "spec": "dist/test/**/*.{cjs,mjs,js}",
-        "node-option": "input-type=module",
-        "reporter": "spec",
-        "check-leaks": true,
-        "exit": true
+        "eslint": "^8.20.0"
     }
 }
