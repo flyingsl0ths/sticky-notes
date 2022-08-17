@@ -16,8 +16,6 @@ import Control.Monad (
     when,
  )
 
-import Control.Monad.Cont (MonadIO)
-
 import Control.Monad.Logger (
     LoggingT,
     runStdoutLoggingT,
@@ -75,6 +73,7 @@ import StringUtils (
     containsUrl,
  )
 
+import Control.Monad.Cont (MonadIO)
 import Network.Wai.Middleware.Static (addBase, staticPolicy)
 import Web.Spock (
     ActionCtxT,
@@ -144,7 +143,7 @@ homeRoute = do
     middleware $ staticPolicy $ addBase "client"
     get root $ do
         setStatus ok200
-        file "text/html" "index.html"
+        file "text/html" "client/index.html"
 
 allNotes :: AppRoute
 allNotes = get "notes" $ do
@@ -198,25 +197,11 @@ addNote = post "note" $ do
 
             isDuplicateOrCreate newNote
 
-deleteAllNotes :: Text -> AppRoute
-deleteAllNotes adminPasswordHash = delete "notes" $ do
-    password <- header "password"
-    maybe (badRequest "PASSWORD REQUIRED") onDeleteAllPosts password
-  where
-    onDeleteAllPosts password
-        | adminPasswordHash == empty =
-            badRequest
-                "ERROR NO CREDENTIALS SPECIFIED PLEASE CONTACT DEVELOPER"
-        | password /= adminPasswordHash = badRequest "INVALID PASSWORD"
-        | otherwise = do
-            runSQL $ rawExecute "delete from note" []
-            setStatus ok200
-
 inspect :: ([Data.Aeson.Types.Key], [Text]) -> (Text -> Bool) -> AppAction ()
 inspect (fields, values) p = do
     let results = map p values
 
-    when (and results || False `elem` results) $
+    when (True `elem` results || and results) $
         badRequestJson $
             zipWith
                 (\f r -> f .= Bool r)
@@ -228,13 +213,23 @@ badRequestJson ps = do
     setStatus badRequest400
     json $ object ps
 
+deleteAllNotes :: Text -> AppRoute
+deleteAllNotes adminPasswordHash = delete "notes" $ do
+    password <- header "password"
+    maybe (badRequest "PASSWORD REQUIRED") onDeleteAllPosts password
+  where
+    onDeleteAllPosts password
+        | adminPasswordHash == empty =
+            badRequest "ERROR NO CREDENTIALS SPECIFIED"
+        | password /= adminPasswordHash = badRequest "INVALID PASSWORD"
+        | otherwise = do
+            runSQL $ rawExecute "delete from note" []
+            setStatus ok200
+
 isDuplicatePost :: Note -> AppAction Bool
-isDuplicatePost Note{noteAuthor = author, noteTitle = title, noteText = content} =
+isDuplicatePost Note{noteAuthor = author, noteTitle = title} =
     do
-        duplicates <-
-            runSQL $
-                Pst.count
-                    [NoteAuthor ==. author, NoteTitle ==. title, NoteText ==. content]
+        duplicates <- runSQL $ Pst.count [NoteAuthor ==. author, NoteTitle ==. title]
         return $ duplicates /= 0
 
 badRequest :: Text -> AppAction a
