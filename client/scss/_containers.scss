@@ -1,24 +1,31 @@
-@mixin centeredBox($direction: row) {
+@mixin box($direction: row) {
     display: flex;
     flex-direction: $direction;
 }
 
+@mixin centeredBox($direction: row) {
+    display: flex;
+    flex-direction: $direction;
+    justify-content: center;
+    align-items: center;
+}
+
 .vbox {
-    @include centeredBox($direction: column);
+    @include box($direction: column);
 }
 
 .hbox {
-    @include centeredBox;
+    @include box;
 }
 
 .cvbox {
-    @include centeredBox($direction: column);
+    @include box($direction: column);
     justify-content: center;
     align-items: center;
 }
 
 .chbox {
-    @include centeredBox;
+    @include box;
     justify-content: center;
     align-items: center;
 }
