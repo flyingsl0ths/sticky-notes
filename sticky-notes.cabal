@@ -16,15 +16,17 @@ extra-source-files:
   .envrc
   .ghci
   .gitignore
+  client/*.json
   client/.gitignore
+  client/.prettierrc
   client/assets/*.svg
-  client/css/*.css
   client/index.html
-  client/main.js
+  client/js/**/*.ts
   client/scss/*.scss
   README.md
   run.sh
   shell.nix
+  test-data.sh
 
 executable sticky-notes
   main-is:          Main.hs
