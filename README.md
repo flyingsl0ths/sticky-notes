@@ -1,3 +1,5 @@
-# sticky-notes
+# Sticky Notes
 
-A random posts app with a vanilla javascript front-end and a haskell backend
+A website that allows users to submit random posts called _notes_ without the need for an account
+
+![](site.png)
