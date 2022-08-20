@@ -2,11 +2,10 @@ import Notes from "./utils/notes.js";
 import FABs from "./utils/fabs.js";
 import NoteRepository from "./NoteRepository.js";
 import Units from "./utils/units.js";
-import Components from "./utils/components.js";
 
-Components.toggle(
-    document.getElementById("main-fab"),
-    document.getElementById("fab-options")
+FABs.toggle(
+    document.getElementById("main-fab") as HTMLDivElement,
+    document.getElementById("fab-options") as HTMLDivElement
 );
 
 const HOME_ROUTE = "http://localhost:5000/" as const;
@@ -14,12 +13,14 @@ const HOME_ROUTE = "http://localhost:5000/" as const;
 const noteRepo = new NoteRepository(HOME_ROUTE);
 
 FABs.withFabContainer(
-    document.getElementById("fab-options"),
-    FABs.onFABContainerClicked
+    document.getElementById("fab-options") as HTMLDivElement,
+    FABs.onFABContainerClicked(noteRepo)
 );
 
 function onNotesFetched() {
-    const noteContainer = document.getElementById("notes");
+    const noteContainer = document.getElementById(
+        "notes"
+    ) as HTMLDivElement | null;
 
     if (noteContainer === null) {
         console.error("Unable to find div with id 'notes'");

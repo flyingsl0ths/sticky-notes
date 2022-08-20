@@ -12,7 +12,7 @@ function isNotesContainer(elem: HTMLElement | null): elem is NotesContainer {
 
 const M = {
     withNoteContainer(
-        container: HTMLElement | null,
+        container: NotesContainer | null,
         f: (container: NotesContainer) => void
     ): void {
         if (!isNotesContainer(container)) {

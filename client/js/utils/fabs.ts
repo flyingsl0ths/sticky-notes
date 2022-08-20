@@ -1,3 +1,4 @@
+import type NoteRepository from "../NoteRepository.js";
 import Components from "./components.js";
 import Optional from "./optional.js";
 
@@ -8,7 +9,10 @@ function isFabContainer(elem: HTMLElement | null): elem is FABContainer {
     return elem !== null && elem.id === "fab-options";
 }
 
-function handleFABAction(action: string | undefined): Optional<() => void> {
+function handleFABAction(
+    action: string | undefined,
+    repo: NoteRepository
+): Optional<() => void> {
     switch (action) {
         case "github":
             return new Optional(() => {
@@ -21,7 +25,7 @@ function handleFABAction(action: string | undefined): Optional<() => void> {
 
         case "post":
             return new Optional(() => {
-                Components.showModal(Components.makePostModal());
+                Components.showModal(Components.makePostModal(repo));
             });
 
         default:
@@ -29,25 +33,14 @@ function handleFABAction(action: string | undefined): Optional<() => void> {
     }
 }
 
-function onFABClicked(target: HTMLElement) {
+function onFABClicked(target: HTMLElement, repo: NoteRepository) {
     const action = target.dataset["action"];
 
-    handleFABAction(action).ifPresentOrElse(
+    handleFABAction(action, repo).ifPresentOrElse(
         f => f(),
         () => console.error("Unknown button action")
     );
 }
-
-// function onFABElementClicked(target: HTMLElement) {
-//     const parent = target.closest(".fab-option");
-//
-//     if (parent === null) {
-//         console.error("Unable to find FAB parent container");
-//         return;
-//     }
-//
-//     onFABClicked(parent as HTMLElement);
-// }
 
 const M = {
     withFabContainer(
@@ -62,32 +55,56 @@ const M = {
         f(container);
     },
 
-    onFABContainerClicked(container: FABContainer): void {
-        container.addEventListener("pointerdown", event => {
-            const toggled = container.dataset["toggled"];
+    toggle(source: HTMLElement | null, target: HTMLElement | null) {
+        if (source === null && target === null) {
+            return;
+        }
 
-            if (
-                (toggled !== undefined && toggled === "0") ||
-                toggled === undefined
-            ) {
-                return;
-            }
+        let toggle = true;
+        (source as HTMLElement).addEventListener("pointerdown", () => {
+            toggle = !toggle;
 
-            const target = event.target;
+            const toggled = toggle ? "1" : "0";
 
-            if (target === null) {
-                return;
-            }
+            document.body.querySelectorAll(".fab").forEach(fab => {
+                const button = fab as HTMLDivElement;
+                button.style.cursor = toggle ? "pointer" : "default";
+            });
 
-            const eventTarget = target as HTMLElement;
-
-            const hasAction =
-                eventTarget.parentElement?.dataset["action"] !== undefined;
-
-            if (hasAction) {
-                onFABClicked(eventTarget.parentElement);
-            }
+            const fabContainer = target as HTMLDivElement;
+            fabContainer.dataset["toggled"] = `${toggled}`;
+            fabContainer.style.opacity = toggled;
         });
+    },
+
+    onFABContainerClicked(repo: NoteRepository): FABContainerAction {
+        return (container: FABContainer) => {
+            container.addEventListener("pointerdown", event => {
+                const toggled = container.dataset["toggled"];
+
+                if (
+                    (toggled !== undefined && toggled === "0") ||
+                    toggled === undefined
+                ) {
+                    return;
+                }
+
+                const target = event.target;
+
+                if (target === null) {
+                    return;
+                }
+
+                const eventTarget = target as HTMLElement;
+
+                const hasAction =
+                    eventTarget.parentElement?.dataset["action"] !== undefined;
+
+                if (hasAction) {
+                    onFABClicked(eventTarget.parentElement, repo);
+                }
+            });
+        };
     }
 };
 

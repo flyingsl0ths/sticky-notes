@@ -1,4 +1,5 @@
-import type { Note } from "../Note.js";
+import type { Note, NoteSubmission } from "../Note.js";
+import type NoteRepository from "../NoteRepository.js";
 import Optional from "./optional.js";
 
 export type Modal = HTMLDivElement;
@@ -46,21 +47,93 @@ function makeModal(
     return backdrop;
 }
 
-const M = {
-    toggle(source: HTMLElement | null, target: HTMLElement | null) {
-        if (source === null && target === null) {
+function hasEmptyFields({ title, text }: NoteSubmission): string | null {
+    const emptyFields: string[] = [];
+
+    if (title.length === 0) {
+        emptyFields.push("- title");
+    }
+    if (text.length === 0) {
+        emptyFields.push("- post");
+    }
+    if (emptyFields.length !== 0) {
+        return emptyFields.reduce((acc, current) => acc + "\n" + current, "");
+    }
+
+    return null;
+}
+
+function postFormBuilder(repo: NoteRepository): Modal {
+    const TEXT_FIELD_MAX_LENGTH = 35;
+    const TEXT_AREA_MAX_LENGTH = 250;
+
+    const container = document.createElement("div");
+    container.classList.add("cvbox", "post-form");
+
+    const header = document.createElement("h1");
+    header.innerText = "Post";
+    header.id = "post-form-title";
+
+    const title = document.createElement("input");
+    title.maxLength = TEXT_FIELD_MAX_LENGTH;
+    title.placeholder = "Title";
+    title.classList.add("form-control");
+
+    const author = document.createElement("input");
+    author.maxLength = TEXT_FIELD_MAX_LENGTH;
+    author.placeholder = "Author";
+    author.classList.add("form-control");
+
+    const body = document.createElement("textarea");
+    body.maxLength = TEXT_AREA_MAX_LENGTH;
+    body.placeholder = "Type something...";
+    body.cols = 30;
+    body.rows = 10;
+    body.classList.add("form-control");
+
+    const submitBtn = document.createElement("h4");
+    submitBtn.innerText = "Submit";
+    submitBtn.id = "square-button";
+    submitBtn.classList.add("form-control");
+
+    const onPostSubmitted = () => {
+        const submission: NoteSubmission = {
+            title: title.value,
+            author: author.value,
+            text: body.value,
+            date: Date.now()
+        };
+
+        const emptyFields = hasEmptyFields(submission);
+        if (emptyFields !== null) {
+            alert("Empty:" + emptyFields);
             return;
         }
 
-        let toggle = true;
-        (source as HTMLElement).addEventListener("pointerdown", () => {
-            toggle = !toggle;
-            const toggled = toggle ? "1" : "0";
-            (target as HTMLElement).dataset["toggled"] = `${toggled}`;
-            (target as HTMLElement).style.opacity = toggled;
-        });
-    },
+        repo.makeSubmission(submission).then(
+            ([statusCode, submissionResult]) => {
+                const notFound = 404 as const;
+                const ok = 200 as const;
+                if (statusCode === notFound) {
+                    console.error(submissionResult);
+                } else if (statusCode === ok) {
+                    alert("Post submitted");
+                    title.value = "";
+                    author.value = "";
+                    body.value = "";
+                }
+            }
+        );
+    };
 
+    submitBtn.addEventListener("pointerdown", onPostSubmitted);
+
+    container.append(header, title, author, body, submitBtn);
+
+    return container;
+}
+
+const M = {
     makeNoteElement(
         { title: noteTitle, text: noteContent, id: noteId }: Note,
         { x, y }: { x: number; y: number }
@@ -83,33 +156,8 @@ const M = {
         return container;
     },
 
-    makePostModal(): HTMLDivElement {
-        const postForm: ModalBuilder = () => {
-            const container = document.createElement("div");
-            container.classList.add("cvbox", "post-form");
-
-            const header = document.createElement("h1");
-            header.innerText = "Post";
-
-            const title = document.createElement("input");
-            title.placeholder = "Title";
-
-            const author = document.createElement("input");
-            author.placeholder = "Author";
-
-            const body = document.createElement("textarea");
-            body.placeholder = "Type something...";
-            body.cols = 30;
-            body.rows = 10;
-
-            const submitBtn = document.createElement("h4");
-            submitBtn.innerText = "Submit";
-
-            container.append(header, title, author, body, submitBtn);
-            return container;
-        };
-
-        return makeModal(postForm);
+    makePostModal(repo: NoteRepository): HTMLDivElement {
+        return makeModal(() => postFormBuilder(repo));
     },
 
     makeNoteDetailsModal({
@@ -120,7 +168,7 @@ const M = {
     }: Note): HTMLDivElement {
         const noteDetails: ModalBuilder = () => {
             const container = document.createElement("div");
-            container.classList.add("large-card");
+            container.classList.add("cvbox", "large-card");
 
             const title = document.createElement("h2");
             title.innerText = noteTitle;
@@ -132,7 +180,7 @@ const M = {
             author.innerText = `- ${noteAuthor}`;
 
             const footer = document.createElement("h4");
-            footer.innerText = new Date(date * 1000).toLocaleString();
+            footer.innerText = new Date(date).toLocaleString();
 
             container.append(title, body, author, footer);
 
@@ -148,7 +196,10 @@ const M = {
             return;
         }
 
-        document.body.prepend(modal);
+        // Ensure a double click doesn't happen
+        if (!document.body.firstElementChild?.classList.contains("modal-bg")) {
+            document.body.prepend(modal);
+        }
 
         setTimeout(
             () => modal.classList.add("modal-active"),

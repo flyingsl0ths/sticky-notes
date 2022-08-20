@@ -1,5 +1,12 @@
-import type { Note } from "./Note.js";
+import type { Note, NoteSubmission } from "./Note.js";
 import Optional from "./utils/optional.js";
+
+export type NoteSubmissionResult = {
+    noteAuthorNameInvalid?: boolean;
+    noteTitleNameInvalid?: boolean;
+    noteContentInvalid?: boolean;
+    status?: string;
+};
 
 export default class NoteRepository {
     constructor(endpointRoot: string) {
@@ -24,6 +31,17 @@ export default class NoteRepository {
         }
 
         return notes;
+    }
+
+    async makeSubmission(
+        submission: NoteSubmission
+    ): Promise<[number, NoteSubmissionResult]> {
+        const respsonse = await fetch(`${this.endPointRoot}/note`, {
+            method: "POST",
+            body: JSON.stringify(submission)
+        });
+
+        return [respsonse.status, await respsonse.json()];
     }
 
     getNote(id: number): Optional<Note> {
