@@ -159,7 +159,15 @@ const M = {
     },
 
     makePostModal(repo: NoteRepository): HTMLDivElement {
-        return makeModal(() => postFormBuilder(repo));
+        return makeModal(
+            () => postFormBuilder(repo),
+            new Optional(() => {
+                if (!repo.hadSubmissionError()) {
+                    repo.resetSubmissionStatus();
+                    window.location.reload();
+                }
+            })
+        );
     },
 
     makeNoteDetailsModal({

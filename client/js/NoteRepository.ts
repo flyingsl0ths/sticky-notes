@@ -47,6 +47,8 @@ export default class NoteRepository {
             body: JSON.stringify(submission)
         });
 
+        this.submissionError = respsonse.status != ResponseCode.OK;
+
         return [respsonse.status, await respsonse.json()];
     }
 
@@ -58,6 +60,15 @@ export default class NoteRepository {
         return this.notes.values();
     }
 
+    hadSubmissionError(): boolean {
+        return this.submissionError;
+    }
+
+    resetSubmissionStatus(): void {
+        this.submissionError = false;
+    }
+
     private notes: Map<number, Note> = new Map();
-    private endPointRoot: string;
+    private readonly endPointRoot: string;
+    private submissionError: boolean = true;
 }
