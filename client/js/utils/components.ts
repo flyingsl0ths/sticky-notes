@@ -1,5 +1,5 @@
 import type { Note, NoteSubmission } from "../Note.js";
-import type NoteRepository from "../NoteRepository.js";
+import { default as NoteRepository, ResponseCode } from "../NoteRepository.js";
 import Optional from "./optional.js";
 
 export type Modal = HTMLDivElement;
@@ -96,7 +96,7 @@ function postFormBuilder(repo: NoteRepository): Modal {
     submitBtn.id = "square-button";
     submitBtn.classList.add("form-control");
 
-    const onPostSubmitted = () => {
+    const onPostSubmitted = async () => {
         const submission: NoteSubmission = {
             title: title.value,
             author: author.value,
@@ -110,20 +110,22 @@ function postFormBuilder(repo: NoteRepository): Modal {
             return;
         }
 
-        repo.makeSubmission(submission).then(
-            ([statusCode, submissionResult]) => {
-                const notFound = 404 as const;
-                const ok = 200 as const;
-                if (statusCode === notFound) {
-                    console.error(submissionResult);
-                } else if (statusCode === ok) {
-                    alert("Post submitted");
-                    title.value = "";
-                    author.value = "";
-                    body.value = "";
-                }
-            }
+        const [statusCode, submissionResult] = await repo.makeSubmission(
+            submission
         );
+
+        if (statusCode === ResponseCode.NOT_FOUND) {
+            console.error(submissionResult);
+        } else if (statusCode === ResponseCode.INVALID_REQUEST) {
+            alert("Post cannot contain any bad words or urls.");
+        } else if (statusCode == ResponseCode.OK) {
+            alert("Post submitted");
+            title.value = "";
+            author.value = "";
+            body.value = "";
+        } else {
+            console.error("Unknown response.");
+        }
     };
 
     submitBtn.addEventListener("pointerdown", onPostSubmitted);
