@@ -1,6 +1,12 @@
 import type { Note, NoteSubmission } from "./Note.js";
 import Optional from "./utils/optional.js";
 
+export enum ResponseCode {
+    NOT_FOUND = 404,
+    INVALID_REQUEST = 400,
+    OK = 200
+}
+
 export type NoteSubmissionResult = {
     noteAuthorNameInvalid?: boolean;
     noteTitleNameInvalid?: boolean;
