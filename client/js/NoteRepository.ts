@@ -41,7 +41,7 @@ export default class NoteRepository {
 
     async makeSubmission(
         submission: NoteSubmission
-    ): Promise<[number, NoteSubmissionResult]> {
+    ): Promise<readonly [ResponseCode, NoteSubmissionResult]> {
         const respsonse = await fetch(`${this.endPointRoot}/note`, {
             method: "POST",
             body: JSON.stringify(submission)
