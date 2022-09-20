@@ -183,17 +183,12 @@ addNote = post "note" $ do
             then badRequestJson ["status" .= String "Duplicate post"]
             else onCreatePost newPost
 
-    onNoteAdded Note{noteTitle = title, noteText = content, noteAuthor = author, noteDate = date} =
+    onNoteAdded note@(Note{noteAuthor = author, noteTitle = title, noteText = content}) =
         do
             inspectNote author title content
 
             let newNote =
-                    Note
-                        { noteTitle = title
-                        , noteText = content
-                        , noteAuthor = hasAuthorOrDefault author
-                        , noteDate = date
-                        }
+                    note{noteAuthor = hasAuthorOrDefault author}
 
             isDuplicateOrCreate newNote
 
