@@ -75,7 +75,7 @@ const M = {
                 };
 
                 note.ifPresentOrElse(buildModal, () =>
-                    console.error("Requested Note does not exist")
+                    console.error("Requested note does not exist")
                 );
             });
         };
